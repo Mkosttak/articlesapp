@@ -1,59 +1,34 @@
 from django import forms
-
-from articles.models import Article
-
-
-# class ArticleCreateForm(forms.Form):
-#     title = forms.CharField(label="Makale Başlık",
-#                             required=False,
-#                             error_messages={"required": "Lütfen Başlık Giriniz."},
-#                             widget=forms.TextInput(attrs={"class": "form-control"}))
-#     description = forms.CharField(widget=forms.Textarea(attrs={"class": "form-control"}))
-#     imageUrl = forms.CharField(widget=forms.TextInput(attrs={"class": "form-control"}))
-#     slug = forms.SlugField(widget=forms.TextInput(attrs={"class": "form-control"}))
-
+from .models import Article
 
 class ArticleCreateForm(forms.ModelForm):
     class Meta:
         model = Article
-        fields = ['title','description','image','slug']
+        fields = ['title', 'description', 'file', 'categories']
         labels = {
-            'title': 'Makale Başlık',
+            'title': 'Başlık',
             'description': 'Açıklama',
-            'imageUrl': 'Resim',
-            'slug': 'Slug',
+            'file': 'PDF Dosyası',
+            'categories': 'Kategoriler',
         }
         widgets = {
-            'title': forms.TextInput(attrs={"class": "form-control"}),
-            'description': forms.Textarea(attrs={"class": "form-control"}),
-            'slug': forms.TextInput(attrs={"class": "form-control"}),
-        }
-        error_messages = {
-            'title': {
-                'required': 'Lütfen Başlık Giriniz.'
-            }
+            'title': forms.TextInput(attrs={'class': 'form-control'}),
+            'description': forms.Textarea(attrs={'class': 'form-control'}),
+            'file': forms.ClearableFileInput(attrs={'class': 'form-control'}),
+            'categories': forms.SelectMultiple(attrs={'class': 'form-control'}),
         }
 
 class ArticleEditForm(forms.ModelForm):
     class Meta:
         model = Article
-        fields = ['title','description','image','slug']
-        labels = {
-            'title': 'Makale Başlık',
-            'description': 'Açıklama',
-            'imageUrl': 'Resim',
-            'slug': 'Slug',
-        }
+        fields = [
+            'title', 'description', 'file', 'categories',
+            'isActive', 'isHome', 'admin_note'
+        ]
         widgets = {
-            'title': forms.TextInput(attrs={"class": "form-control"}),
-            'description': forms.Textarea(attrs={"class": "form-control"}),
-            'slug': forms.TextInput(attrs={"class": "form-control"}),
+            'title': forms.TextInput(attrs={'class': 'form-control'}),
+            'description': forms.Textarea(attrs={'class': 'form-control'}),
+            'file': forms.ClearableFileInput(attrs={'class': 'form-control'}),
+            'categories': forms.SelectMultiple(attrs={'class': 'form-control'}),
+            'admin_note': forms.Textarea(attrs={'class': 'form-control'}),
         }
-        error_messages = {
-            'title': {
-                'required': 'Lütfen Başlık Giriniz.'
-            }
-        }
-
-class UploadForm(forms.Form):
-    image = forms.ImageField()

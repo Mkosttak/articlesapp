@@ -1,60 +1,122 @@
-<nav class="navbar navbar-expand-lg bg-primary navbar-dark">
-    <div class="container">
-        <a href="{% url 'index' %}" class="navbar-brand">Akademik Makaleler</a>
+{% load static %}
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <title>Navbar</title>
+  <link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet">
+  <style>
+    .navbar {
+      position: sticky;
+      top: 0;
+      z-index: 1030;
+    }
+    .toast-container {
+      top: 4rem;
+      z-index: 1040;
+      pointer-events: none;
+      position: fixed;
+      right: 1rem;
+    }
+    .toast {
+      pointer-events: auto;
+    }
+  </style>
+</head>
+<body>
 
+<nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
+  <div class="container">
+    <a class="navbar-brand d-flex align-items-center" href="/">
+      <svg class="me-2" width="30" height="30" viewBox="0 0 24 24" fill="none"
+           xmlns="http://www.w3.org/2000/svg">
+        <path d="M12 2L2 7L12 12L22 7L12 2Z" fill="#4B5563"></path>
+        <path d="M2 17L12 22L22 17" stroke="#4B5563" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round"></path>
+        <path d="M2 12L12 17L22 12" stroke="#4B5563" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round"></path>
+      </svg>
+      <span class="fw-bold">Site Adı</span>
+    </a>
 
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
-                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+            data-bs-target="#navbarNav" aria-controls="navbarNav"
+            aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
 
+    <div class="collapse navbar-collapse" id="navbarNav" data-bs-animation="false">
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+        <li class="nav-item">
+          <a href="/" class="nav-link {% if request.path == '/' %}active fw-bold{% endif %}">Ana Sayfa</a>
+        </li>
+        <li class="nav-item">
+          <a href="{% url 'index' %}" class="nav-link {% if request.path == '/index' %}active fw-bold{% endif %}">Makaleler</a>
+        </li>
+        <li class="nav-item">
+          <a href="/about" class="nav-link {% if request.path == '/about' %}active fw-bold{% endif %}">Hakkımızda</a>
+        </li>
+        <li class="nav-item">
+          <a href="/contact" class="nav-link {% if request.path == '/contact' %}active fw-bold{% endif %}">İletişim</a>
+        </li>
+        <li class="nav-item">
+          <a href="{% url 'authors_list' %}" class="nav-link {% if request.path == '/account/authors' %}active fw-bold{% endif %}">Editörler</a>
+        </li>
+        {% if user.is_authenticated %}
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" id="adminDropdown"
+             role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            Admin İşlemleri
+          </a>
+          <ul class="dropdown-menu" aria-labelledby="adminDropdown">
+            <li><a href="{% url 'article_create' %}" class="dropdown-item">Makale Ekle</a></li>
+            <li><a href="{% url 'article_list' %}" class="dropdown-item">Admin Makaleler</a></li>
+          </ul>
+        </li>
+        {% endif %}
+      </ul>
 
-        <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav ms-auto">
-                <li class="nav-item">
-                    <a href="/about" class="nav-link">Hakkımızda</a>
-                </li>
-                <li class="nav-item">
-                    <a href="/contact" class="nav-link">İletişim</a>
-                </li>
-                {% if user.is_superuser %}
-                	<li class="nav-item">
-                        <a href="{% url 'article_create' %}" class="nav-link">Makale Ekle</a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="{% url 'article_list' %}" class="nav-link">Admin Makaleler</a>
-                    </li>
-                {% endif %}
-
-            </ul>
-
-            <ul class="navbar-nav ms-1">
-                {% if user.is_authenticated  %}
-                    <li class="nav-item">
-                        <a href="" class="nav-link">Hoşgeldin,{{ user.username }}</a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="{% url 'change_password' %}" class="nav-link">Paralo Güncelle</a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="{% url 'user_logout' %}" class="nav-link">Logout</a>
-                    </li>
-                {% else %}
-                    <li class="nav-item">
-                        <a href="{% url 'user_login' %}" class="nav-link">Login</a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="{% url 'user_register' %}" class="nav-link">Register</a>
-                    </li>
-                {% endif %}
-
-
-            </ul>
-
-            <form class="d-flex" action="{% url 'search' %}">
-                <input type="text" name="q" class="form-control me-1" placeholder="Arama...">
-                <button class="btn btn-secondary" type="submit">Ara</button>
-            </form>
+      <form class="d-flex me-lg-3 mb-3 mb-lg-0" action="{% url 'search' %}">
+        <div class="input-group">
+          <input type="text" name="q" class="form-control" placeholder="Arama..." aria-label="Arama">
+          <button class="btn btn-outline-primary" type="submit">
+            <i class="bi bi-search"></i>
+          </button>
         </div>
+      </form>
+
+      <ul class="navbar-nav">
+        {% if user.is_authenticated %}
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <div class="d-flex align-items-center">
+              <div class="rounded-circle bg-light d-flex justify-content-center align-items-center me-2" style="width: 32px; height: 32px;">
+                <i class="bi bi-person"></i>
+              </div>
+              <span>{{ user.username }}</span>
+            </div>
+          </a>
+          <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+            <li><a class="dropdown-item" href="{% url 'profile' %}">Profilim</a></li>
+            <li><a class="dropdown-item" href="{% url 'my_articles' %}">Makalelerim</a></li>
+            <li><a class="dropdown-item" href="{% url 'change_password' %}">Parola Güncelle</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item" href="{% url 'user_logout' %}">Çıkış Yap</a></li>
+          </ul>
+        </li>
+        {% else %}
+        <li class="nav-item">
+          <a href="{% url 'user_login' %}" class="nav-link">Giriş Yap</a>
+        </li>
+        <li class="nav-item">
+          <a href="{% url 'user_register' %}" class="btn btn-primary btn-sm rounded-pill px-3 my-1">Kayıt Ol</a>
+        </li>
+        {% endif %}
+      </ul>
     </div>
+  </div>
 </nav>
+
+<script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
+</body>
+</html>

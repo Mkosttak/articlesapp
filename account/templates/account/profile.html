@@ -1,0 +1,47 @@
+{% extends 'layout.html' %}
+{% load static %}
+{% block css_file %}
+<link rel="stylesheet" href="{% static 'articles/css/style.css' %}">
+{% endblock %}
+
+{% block page_title %}
+Profilim
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Profil Bilgilerim</h2>
+    <hr>
+
+    <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="row">
+            <div class="col-md-6">
+                <h5>Kullanıcı Bilgileri</h5>
+                {{ user_form.as_p }}
+            </div>
+            <div class="col-md-6">
+                <h5>Yazar Profili</h5>
+                {{ author_form.as_p }}
+            </div>
+        </div>
+        <button class="btn btn-primary mt-2" type="submit">Güncelle</button>
+        <a href="{% url 'change_password' %}" class="btn btn-warning mt-2">Şifre Değiştir</a>
+    </form>
+
+    <hr>
+    <h3>Makalelerim</h3>
+    {% if articles %}
+        <ul class="list-group">
+            {% for article in articles %}
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <a href="{% url 'article_details' article.slug %}">{{ article.title }}</a>
+                    <span>{{ article.created_at|date:"d M Y" }}</span>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>Henüz makale yüklenmedi.</p>
+    {% endif %}
+</div>
+{% endblock %}

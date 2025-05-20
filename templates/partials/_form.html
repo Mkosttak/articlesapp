@@ -1,15 +1,103 @@
 {% for error in form.non_field_errors %}
-    <div class="alert alert-danger">{{ error }}</div>
+<div class="alert alert-danger alert-dismissible fade show rounded-3 shadow-sm border-0 mb-4" role="alert">
+    <div class="d-flex align-items-center">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+        <div>{{ error }}</div>
+    </div>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
 {% endfor %}
-                    
+
 {% for field in form %}
-    <div class="mb-3 {% if field.errors %}invalid{% endif %}">
-        {% if field.errors %}
-            <div class="alert alert-danger pb-0">
-                {{ field.errors }}
-            </div>
+<div class="mb-4 form-group {% if field.errors %}is-invalid{% endif %}">
+    {% if field.errors %}
+    <div class="alert alert-danger alert-dismissible fade show rounded-3 mb-3 border-0 shadow-sm" role="alert">
+        <div class="d-flex align-items-center">
+            <i class="bi bi-exclamation-circle-fill me-2"></i>
+            <div>{{ field.errors }}</div>
+        </div>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {% endif %}
+
+    <label for="{{ field.id_for_label }}" class="form-label fw-medium">
+        {{ field.label }}
+        {% if field.field.required %}
+        <span class="text-danger">*</span>
         {% endif %}
-        <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
+    </label>
+
+    {% if field.field.widget.input_type == 'checkbox' %}
+    <div class="form-check">
+        {{ field }}
+        <label class="form-check-label" for="{{ field.id_for_label }}">
+            {{ field.help_text|safe }}
+        </label>
+    </div>
+    {% elif field.field.widget.input_type == 'radio' %}
+    <div class="form-check">
+        {{ field }}
+        <label class="form-check-label" for="{{ field.id_for_label }}">
+            {{ field.help_text|safe }}
+        </label>
+    </div>
+    {% elif field.field.widget.input_type == 'file' %}
+    <div class="input-group">
+        <span class="input-group-text bg-light">
+            <i class="bi bi-upload"></i>
+        </span>
         {{ field }}
     </div>
+    <div class="form-text text-muted small">{{ field.help_text|safe }}</div>
+    {% elif field.name == 'content' or field.name == 'body' or field.name == 'description' or 'text' in field.field.widget.attrs.class %}
+    {{ field }}
+    <div class="form-text text-muted small">{{ field.help_text|safe }}</div>
+    {% else %}
+    <div class="input-group">
+        {% if 'email' in field.name %}
+        <span class="input-group-text bg-light">
+            <i class="bi bi-envelope"></i>
+        </span>
+        {% elif 'password' in field.name %}
+        <span class="input-group-text bg-light">
+            <i class="bi bi-lock"></i>
+        </span>
+        {% elif 'user' in field.name or 'name' in field.name %}
+        <span class="input-group-text bg-light">
+            <i class="bi bi-person"></i>
+        </span>
+        {% elif 'phone' in field.name %}
+        <span class="input-group-text bg-light">
+            <i class="bi bi-telephone"></i>
+        </span>
+        {% elif 'date' in field.name %}
+        <span class="input-group-text bg-light">
+            <i class="bi bi-calendar"></i>
+        </span>
+        {% elif 'time' in field.name %}
+        <span class="input-group-text bg-light">
+            <i class="bi bi-clock"></i>
+        </span>
+        {% elif 'url' in field.name or 'link' in field.name %}
+        <span class="input-group-text bg-light">
+            <i class="bi bi-link"></i>
+        </span>
+        {% else %}
+        <span class="input-group-text bg-light">
+            <i class="bi bi-pencil"></i>
+        </span>
+        {% endif %}
+        {{ field }}
+    </div>
+    <div class="form-text text-muted small">{{ field.help_text|safe }}</div>
+    {% endif %}
+</div>
 {% endfor %}
+
+{% if form.fields %}
+<div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+    <button type="submit" class="btn btn-primary px-4 rounded-pill shadow-sm">
+        <i class="bi bi-check-circle me-1"></i> Gönder
+    </button>
+</div>
+{% endif %}

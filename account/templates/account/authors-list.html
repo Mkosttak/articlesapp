@@ -1,0 +1,41 @@
+{% extends 'layout.html' %}
+{% load static %}
+
+{% block css_file %}
+<link rel="stylesheet" href="{% static 'articles/css/style.css' %}">
+{% endblock %}
+
+{% block page_title %}
+Onaylı Yazarlar
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Onaylı Yazarlar</h2>
+    <hr>
+
+    {% if authors %}
+        <div class="row">
+            {% for author in authors %}
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100">
+                        <div class="card-body text-center">
+                            {% if author.profile_image %}
+                                <img src="{{ author.profile_image.url }}" class="rounded-circle mb-2" width="100" height="100" alt="Profil">
+                            {% endif %}
+                            <h5 class="card-title">{{ author.full_name }}</h5>
+                            <p class="card-text text-muted">{{ author.bio|truncatewords:20 }}</p>
+                            <a href="{% url 'author_detail' author.id %}" class="btn btn-outline-primary btn-sm">Profili Gör</a>
+                        </div>
+                        <div class="card-footer text-muted text-center">
+                            {{ author.articles_count }} makale
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="alert alert-info">Henüz onaylı yazar bulunmamaktadır.</div>
+    {% endif %}
+</div>
+{% endblock %}
