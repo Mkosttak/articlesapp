@@ -4,6 +4,21 @@
 {% block content %}
 <div class="container mt-4">
     <h2 class="mb-4">Tüm Makaleler (Admin)</h2>
+
+    <!-- 🔍 Arama Kutusu -->
+    <form method="GET" class="mb-4">
+        <div class="input-group">
+            <input type="text" name="q" class="form-control" placeholder="Başlık veya açıklamada ara..." value="{{ request.GET.q }}">
+            <button class="btn btn-primary" type="submit">Ara</button>
+        </div>
+    </form>
+
+    {% if request.GET.q %}
+        <div class="alert alert-info">
+            "{{ request.GET.q }}" için <strong>{{ articles|length }}</strong> sonuç bulundu.
+        </div>
+    {% endif %}
+
     <div class="table-responsive">
         <table class="table table-striped align-middle">
             <thead class="table-light">
@@ -55,6 +70,10 @@
                             <i class="bi bi-trash"></i> Sil
                         </a>
                     </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="8" class="text-center text-muted">Makale bulunamadı.</td>
                 </tr>
                 {% endfor %}
             </tbody>

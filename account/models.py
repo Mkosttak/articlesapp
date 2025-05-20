@@ -4,7 +4,7 @@ from django.contrib.auth.models import User
 
 class Author(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    profile_image = models.ImageField(upload_to="author_profiles", default="author_profiles/default.png")
+    profile_image = models.ImageField(upload_to="author_profiles", default="uploads/author_profiles/default.png")
     bio = models.TextField(blank=True, null=True)
     resume = models.FileField(upload_to="author_resumes", blank=True, null=True)
     is_approved = models.BooleanField(default=False)

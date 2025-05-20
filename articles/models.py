@@ -9,17 +9,6 @@ def validate_pdf(value):
     if ext.lower() != '.pdf':
         raise ValidationError('Yalnızca PDF dosyalarına izin verilir.')
 
-
-import uuid
-
-class Category(models.Model):
-    name = models.CharField(max_length=50)
-    slug = models.SlugField(null=False, default="", unique=True, db_index=True)
-
-    def __str__(self):
-        return self.name
-
-
 def article_file_upload_to(instance, filename):
     ext = filename.split('.')[-1]
     base_slug = slugify(instance.title)
@@ -29,12 +18,17 @@ def article_file_upload_to(instance, filename):
 class Article(models.Model):
     title = models.CharField(max_length=50)
     description = models.TextField()
-    file = models.FileField(upload_to=article_file_upload_to, null=True, blank=True)
+    file = models.FileField(
+        upload_to=article_file_upload_to,
+        validators=[validate_pdf],  # ✅ Buraya eklendi
+        null=True,
+        blank=True
+    )
     date = models.DateField(auto_now=True)
     isActive = models.BooleanField(default=False)
     isHome = models.BooleanField(default=False)
     slug = models.SlugField(null=False, blank=True, unique=True)
-    categories = models.ManyToManyField(Category)
+    categories = models.ManyToManyField("Category")
     author = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
     admin_note = models.TextField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True, null=True)
@@ -54,3 +48,9 @@ class Article(models.Model):
     class Meta:
         ordering = ['-updated_at']
 
+class Category(models.Model):
+    name = models.CharField(max_length=50)
+    slug = models.SlugField(null=False, default="", unique=True, db_index=True)
+
+    def __str__(self):
+        return self.name

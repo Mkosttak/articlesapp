@@ -4,7 +4,7 @@ from .models import Author
 
 @admin.register(Author)
 class AuthorAdmin(admin.ModelAdmin):
-    list_display = ('user', 'full_name', 'is_approved', 'articles_count', 'created_at')
+    list_display = ('user', 'full_name', 'is_approved', 'articles_count', 'created_at','updated_at')
     list_filter = ('is_approved',)
     search_fields = ('user__username', 'user__first_name', 'user__last_name')
     actions = ['approve_authors', 'unapprove_authors']

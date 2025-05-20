@@ -15,6 +15,21 @@ Makaleler
         <div class="col-lg-3 mb-4">
             {% include 'articles/partials/_categories.html' %}
         </div>
+        <!-- 🔍 Arama Kutusu -->
+        <form method="GET" class="mb-4">
+            <div class="input-group">
+                <input type="text" name="q" class="form-control" placeholder="Makale ara..." value="{{ request.GET.q }}">
+                <button class="btn btn-primary" type="submit">Ara</button>
+            </div>
+        </form>
+
+{% if query %}
+    <div class="alert alert-info">
+        "{{ query }}" için <strong>{{ articles|length }}</strong> sonuç bulundu.
+    </div>
+{% endif %}
+
+
         <div class="col-lg-9">
             {% if articles|length == 0 %}
                 <div class="alert alert-warning">Henüz hiç makale yayınlanmamış.</div>

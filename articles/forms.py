@@ -32,3 +32,15 @@ class ArticleEditForm(forms.ModelForm):
             'categories': forms.SelectMultiple(attrs={'class': 'form-control'}),
             'admin_note': forms.Textarea(attrs={'class': 'form-control'}),
         }
+
+class UserArticleEditForm(forms.ModelForm):
+    class Meta:
+        model = Article
+        fields = ['title', 'description', 'file', 'categories']
+        widgets = {
+            'title': forms.TextInput(attrs={'class': 'form-control'}),
+            'description': forms.Textarea(attrs={'class': 'form-control'}),
+            'file': forms.ClearableFileInput(attrs={'class': 'form-control'}),
+            'categories': forms.SelectMultiple(attrs={'class': 'form-control'}),
+        }
+

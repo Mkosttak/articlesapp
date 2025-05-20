@@ -1,0 +1,71 @@
+{% extends 'layout.html' %}
+{% load static %}
+
+{% block page_title %}Admin Editörler{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2 class="mb-4">Editör Listesi</h2>
+
+    <!-- 🔍 Arama Kutusu -->
+    <form method="GET" class="mb-4">
+        <div class="input-group">
+            <input type="text" name="q" class="form-control" placeholder="Ad, Soyad veya Email ile ara..." value="{{ request.GET.q }}">
+            <button class="btn btn-primary" type="submit">Ara</button>
+        </div>
+    </form>
+
+    <!-- ℹ️ Arama Sonucu Bilgisi -->
+    {% if request.GET.q %}
+        <div class="alert alert-info">
+            "{{ request.GET.q }}" için <strong>{{ authors|length }}</strong> sonuç bulundu.
+        </div>
+    {% endif %}
+
+    <!-- 📋 Editör Tablosu -->
+    <div class="table-responsive">
+        <table class="table table-bordered table-striped align-middle">
+            <thead class="table-light">
+                <tr>
+                    <th>Ad Soyad</th>
+                    <th>Kullanıcı Adı</th>
+                    <th>Email</th>
+                    <th>Makale Sayısı</th>
+                    <th>Onay Durumu</th>
+                    <th>Oluşturulma</th>
+                    <th>Güncellenme</th>
+                    <th>İşlemler</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for author in authors %}
+                <tr>
+                    <td>{{ author.full_name }}</td>
+                    <td>{{ author.user.username }}</td>
+                    <td>{{ author.user.email }}</td>
+                    <td>{{ author.articles_count }}</td>
+                    <td>
+                        {% if author.is_approved %}
+                            <span class="badge bg-success">Onaylı</span>
+                        {% else %}
+                            <span class="badge bg-warning text-dark">Onaysız</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ author.created_at|date:"d M Y H:i" }}</td>
+                    <td>{{ author.updated_at|date:"d M Y H:i" }}</td>
+                    <td>
+                        <a href="{% url 'authors_edit' author.id %}" class="btn btn-sm btn-outline-primary">
+                            <i class="bi bi-pencil-square"></i> Düzenle
+                        </a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="8" class="text-center text-muted">Hiçbir editör bulunamadı.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

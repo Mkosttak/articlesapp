@@ -1,0 +1,38 @@
+{% extends 'layout.html' %}
+{% load static %}
+
+{% block page_title %}Editör Düzenle{% endblock %}
+
+{% block content %}
+
+<div class="container mt-4">
+
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <div class="card shadow rounded-4">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">Editör Düzenle: {{ author.user.username }}</h5>
+                </div>
+                <div class="card-body">
+                    <form method="POST" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        {{ user_form.as_p }}
+                        {{ author_form.as_p }}
+
+                        <div class="form-check mb-3">
+                            {{ is_approved_checkbox }}
+                        </div>
+
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+                            <button class="btn btn-success px-4 rounded-pill" type="submit">
+                                <i class="bi bi-save me-1"></i> Kaydet
+                            </button>
+                            <a href="{% url 'authors_edit' author_id %}" class="btn btn-outline-secondary rounded-pill">Vazgeç</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

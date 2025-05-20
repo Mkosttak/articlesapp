@@ -6,42 +6,29 @@
 {% endblock %}
 
 {% block page_title %}
-    Makale Düzenle (Admin)
+    Makale Düzenle ADMİN
 {% endblock %}
 
 {% block content %}
 <div class="container mt-4">
-    <div class="row justify-content-center">
-        <div class="col-lg-8 col-md-10 col-12">
-            <div class="card shadow rounded-4 overflow-hidden">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <div class="card shadow rounded-4">
                 <div class="card-header bg-primary text-white">
                     <h5 class="mb-0">Makale Düzenle</h5>
                 </div>
                 <div class="card-body">
-
-                    {% if form.instance.admin_note %}
-                    <div class="alert alert-info d-flex align-items-start gap-2">
-                        <i class="bi bi-info-circle-fill fs-4 text-info"></i>
-                        <div>
-                            <strong>Kullanıcıya Not:</strong><br>
-                            {{ form.instance.admin_note }}
-                        </div>
-                    </div>
-                    {% endif %}
-
                     <form method="POST" enctype="multipart/form-data">
                         {% csrf_token %}
                         {% include 'partials/_form.html' %}
-                        <div class="d-flex justify-content-between align-items-center mt-4 pt-3 border-top">
-                            <a href="{% url 'article_list' %}" class="btn btn-outline-secondary px-4 rounded-pill">
-                                <i class="bi bi-arrow-left me-1"></i> Vazgeç
-                            </a>
+
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
                             <button class="btn btn-success px-4 rounded-pill" type="submit">
                                 <i class="bi bi-save me-1"></i> Kaydet
                             </button>
+                            <a href="{% url 'article_list' %}" class="btn btn-outline-secondary rounded-pill">Vazgeç</a>
                         </div>
                     </form>
-
                 </div>
             </div>
         </div>
