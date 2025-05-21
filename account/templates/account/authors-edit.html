@@ -4,30 +4,53 @@
 {% block page_title %}Editör Düzenle{% endblock %}
 
 {% block content %}
-
-<div class="container mt-4">
-
-    <div class="row">
-        <div class="col-md-8 offset-md-2">
-            <div class="card shadow rounded-4">
-                <div class="card-header bg-info text-white">
-                    <h5 class="mb-0">Editör Düzenle: {{ author.user.username }}</h5>
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-7 col-md-9 col-12">
+            <div class="card shadow rounded-4 border-0">
+                <div class="card-header bg-info text-white text-center rounded-top-4">
+                    <h4 class="mb-0">Editör Düzenle: {{ author.user.username }}</h4>
                 </div>
-                <div class="card-body">
+                <div class="card-body p-4">
                     <form method="POST" enctype="multipart/form-data">
                         {% csrf_token %}
-                        {{ user_form.as_p }}
-                        {{ author_form.as_p }}
-
-                        <div class="form-check mb-3">
-                            {{ is_approved_checkbox }}
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                {{ user_form.as_p }}
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3 text-center">
+                                    {% if author.profile_image %}
+                                        <img src="{{ author.profile_image.url }}" alt="Profil Fotoğrafı" class="rounded-circle img-thumbnail mb-2" style="width: 100px; height: 100px; object-fit: cover;">
+                                    {% endif %}
+                                    {{ author_form.profile_image.label_tag }}
+                                    {{ author_form.profile_image }}
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Özgeçmiş (PDF)</label>
+                                    {% if author.resume %}
+                                        <a href="{{ author.resume.url }}" target="_blank" class="btn btn-outline-primary btn-sm mb-2">
+                                            <i class="bi bi-file-earmark-text me-1"></i>Mevcut CV'yi Görüntüle
+                                        </a>
+                                    {% endif %}
+                                    {{ author_form.resume }}
+                                </div>
+                                <div class="form-check mb-3">
+                                    {{ author_form.is_approved }} {{ author_form.is_approved.label_tag }}
+                                </div>
+                                <div class="mb-3">
+                                    {{ author_form.bio.label_tag }}
+                                    {{ author_form.bio }}
+                                </div>
+                            </div>
                         </div>
-
-                        <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
-                            <button class="btn btn-success px-4 rounded-pill" type="submit">
+                        <div class="d-flex gap-2 mt-4 justify-content-end">
+                            <button class="btn btn-success px-4 py-2 rounded-pill shadow-sm" type="submit">
                                 <i class="bi bi-save me-1"></i> Kaydet
                             </button>
-                            <a href="{% url 'authors_edit' author_id %}" class="btn btn-outline-secondary rounded-pill">Vazgeç</a>
+                            <a href="{% url 'account:admin_authors' %}" class="btn btn-light px-4 py-2 rounded-pill">
+                                <i class="bi bi-x-lg me-1"></i> Vazgeç
+                            </a>
                         </div>
                     </form>
                 </div>
@@ -35,4 +58,17 @@
         </div>
     </div>
 </div>
+<style>
+.card-header {
+    background: linear-gradient(45deg, #17a2b8, #0dcaf0);
+}
+@media (max-width: 768px) {
+    .card-body {
+        padding: 1.2rem !important;
+    }
+    .btn {
+        width: 100%;
+    }
+}
+</style>
 {% endblock %}

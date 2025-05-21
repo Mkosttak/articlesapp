@@ -3,6 +3,7 @@ from django.db import models
 from django.contrib.auth.models import User
 import os
 from django.core.exceptions import ValidationError
+from django.utils import timezone
 
 def validate_pdf(value):
     ext = os.path.splitext(value.name)[1]
@@ -13,10 +14,10 @@ def article_file_upload_to(instance, filename):
     ext = filename.split('.')[-1]
     base_slug = slugify(instance.title)
     filename = f"{base_slug}.{ext}"
-    return f'uploads/articles/files/{filename}'
+    return f'uploads/articles/{filename}'
 
 class Article(models.Model):
-    title = models.CharField(max_length=50)
+    title = models.CharField(max_length=200)
     description = models.TextField()
     file = models.FileField(
         upload_to=article_file_upload_to,
@@ -31,8 +32,8 @@ class Article(models.Model):
     categories = models.ManyToManyField("Category")
     author = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
     admin_note = models.TextField(blank=True, null=True)
-    created_at = models.DateTimeField(auto_now_add=True, null=True)
-    updated_at = models.DateTimeField(auto_now=True, null=True)
+    created_at = models.DateTimeField(default=timezone.now)
+    updated_at = models.DateTimeField(auto_now=True)
 
     def save(self, *args, **kwargs):
         if not self.slug:

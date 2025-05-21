@@ -20,4 +20,4 @@ class Author(models.Model):
 
     @property
     def articles_count(self):
-        return self.user.article_set.count()
+        return self.user.article_set.filter(isActive=True).count()

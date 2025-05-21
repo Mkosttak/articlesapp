@@ -39,7 +39,7 @@ Onaylı Yazarlar
                             {% endif %}
                             <h5 class="card-title">{{ author.full_name }}</h5>
                             <p class="card-text text-muted">{{ author.bio|truncatewords:20 }}</p>
-                            <a href="{% url 'author_detail' author.id %}" class="btn btn-outline-primary btn-sm">Profili Gör</a>
+                            <a href="{% url 'account:author_detail' author.id %}" class="btn btn-outline-primary btn-sm">Profili Gör</a>
                         </div>
                         <div class="card-footer text-muted text-center">
                             {{ author.articles_count }} makale

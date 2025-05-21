@@ -1,14 +1,12 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login, logout, update_session_auth_hash
-from django.contrib.auth.models import User
 from django.contrib import messages
-from django.contrib.auth.forms import AuthenticationForm, UserCreationForm, PasswordChangeForm
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.db.models import Q
-
-from account.forms import LoginUserForm, NewUserForm, UserPasswordChangeForm, AuthorProfileForm, UserProfileForm
-from account.models import Author
+from account.forms import LoginUserForm, NewUserForm, UserPasswordChangeForm, AuthorProfileForm, UserProfileForm, UserUpdateForm
 from articles.models import Article
+from account.models import Author
+from django.http import Http404
 
 
 def user_login(request):
@@ -39,13 +37,13 @@ def user_register(request):
         form = NewUserForm(request.POST)
         if form.is_valid():
             user = form.save()
-            Author.objects.create(user=user)  # Profil oluştur
+            Author.objects.create(user=user)
             username = form.cleaned_data.get('username')
             password = form.cleaned_data.get('password1')
             user = authenticate(username=username, password=password)
             login(request, user)
             messages.add_message(request, messages.SUCCESS, 'Başarılı bir şekilde kayıt oldunuz! Profilinizi düzenleyebilirsiniz.')
-            return redirect('profile')
+            return redirect('account:profile')
         else:
             return render(request, 'account/register.html', {"form": form})
     else:
@@ -60,7 +58,7 @@ def change_password(request):
             user = form.save()
             update_session_auth_hash(request, user)
             messages.success(request, 'Parolanız Güncellendi!')
-            return redirect('change_password')
+            return redirect('account:change_password')
         else:
             messages.error(request, 'Tekrar Deneyiniz!')
     else:
@@ -75,31 +73,40 @@ def user_logout(request):
 @login_required
 def profile(request):
     author, created = Author.objects.get_or_create(user=request.user)
-    user_form = UserProfileForm(instance=request.user)
-    author_form = AuthorProfileForm(instance=author)
+    total_articles = Article.objects.filter(author=request.user).count()
+    published_articles = Article.objects.filter(author=request.user, isActive=True).count()
+    pending_articles = Article.objects.filter(author=request.user, isActive=False).count()
+    recent_articles = Article.objects.filter(author=request.user).order_by('-created_at')[:5]
+    context = {
+        'author': author,
+        'total_articles': total_articles,
+        'published_articles': published_articles,
+        'pending_articles': pending_articles,
+        'recent_articles': recent_articles,
+    }
+    return render(request, 'account/profile.html', context)
 
-    if request.method == "POST":
-        user_form = UserProfileForm(request.POST, instance=request.user)
-        author_form = AuthorProfileForm(request.POST, request.FILES, instance=author)
-
-        uploaded_resume = request.FILES.get('resume')
-
-        if uploaded_resume and not uploaded_resume.name.lower().endswith('.pdf'):
-            messages.error(request, 'Sadece PDF formatında dosya yükleyebilirsiniz.')
-        elif user_form.is_valid() and author_form.is_valid():
+@login_required
+def profile_edit(request):
+    author = Author.objects.get(user=request.user)
+    if request.method == 'POST':
+        user_form = UserUpdateForm(request.POST, instance=request.user)
+        author_form = AuthorProfileForm(request.POST, request.FILES, instance=author, user=request.user)
+        if user_form.is_valid() and author_form.is_valid():
             user_form.save()
-            # manuel olarak set et (PDF kontrolünü geçtik)
-            if uploaded_resume:
-                author.resume = uploaded_resume
             author_form.save()
-            messages.success(request, 'Profiliniz başarıyla güncellendi!')
-            return redirect('profile')
-
-    return render(request, 'account/profile.html', {
+            messages.success(request, 'Profiliniz başarıyla güncellendi.')
+            return redirect('account:profile')
+    else:
+        user_form = UserUpdateForm(instance=request.user)
+        author_form = AuthorProfileForm(instance=author, user=request.user)
+    context = {
         'user_form': user_form,
         'author_form': author_form,
-        'author': author
-    })
+        'author': author,
+        'user': request.user
+    }
+    return render(request, 'account/profile_edit.html', context)
 
 @login_required
 def my_articles(request):
@@ -124,7 +131,11 @@ def authors_list(request):
     })
 
 def author_detail(request, author_id):
-    author = get_object_or_404(Author, id=author_id, is_approved=True)
+    try:
+        author = Author.objects.get(id=author_id, is_approved=True)
+    except Author.DoesNotExist:
+        messages.error(request, "Yazar bulunamadı veya onaylanmamış.")
+        return redirect('account:authors_list')
     articles = Article.objects.filter(author=author.user, isActive=True)
     return render(request, 'account/author-detail.html', {'author': author, 'articles': articles})
 
@@ -134,17 +145,17 @@ def profile_view(request):
     author, created = Author.objects.get_or_create(user=user)
     if request.method == "POST":
         user_form = UserProfileForm(request.POST, instance=user)
-        author_form = AuthorProfileForm(request.POST, request.FILES, instance=author)
+        author_form = AuthorProfileForm(request.POST, request.FILES, instance=author, user=user)
         if user_form.is_valid() and author_form.is_valid():
             user_form.save()
             author_form.save()
             messages.success(request, "Profil başarıyla güncellendi.")
-            return redirect('profile')
+            return redirect('account:profile')
         else:
             messages.error(request, "Lütfen formdaki hataları düzeltin.")
     else:
         user_form = UserProfileForm(instance=user)
-        author_form = AuthorProfileForm(instance=author)
+        author_form = AuthorProfileForm(instance=author, user=user)
     user_articles = Article.objects.filter(author=user)
     return render(request, 'account/profile.html', {
         'user_form': user_form,
@@ -176,7 +187,7 @@ def authors_edit(request, author_id):
         if user_form.is_valid() and author_form.is_valid():
             user_form.save()
             author_form.save()
-            return redirect('admin_editors')
+            return redirect('account:admin_authors')
     return render(request, 'account/authors-edit.html', {
         'user_form': user_form,
         'author_form': author_form,

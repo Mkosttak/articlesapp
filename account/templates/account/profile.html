@@ -1,59 +1,60 @@
 {% extends 'layout.html' %}
 {% load static %}
+
 {% block css_file %}
-<link rel="stylesheet" href="{% static 'articles/css/style.css' %}">
+<link rel="stylesheet" href="{% static 'account/css/style.css' %}">
 {% endblock %}
 
-{% block page_title %}
-Profilim
-{% endblock %}
+{% block page_title %}{{ user.get_full_name|default:user.username }} - Profil{% endblock %}
 
 {% block content %}
-<div class="container mt-4">
-    <h2>Profil Bilgilerim</h2>
-    <hr>
-
-    <form method="POST" enctype="multipart/form-data">
-        {% csrf_token %}
-        <div class="row">
-            <!-- Kullanıcı Bilgileri -->
-            <div class="col-md-6">
-                <h5>Kullanıcı Bilgileri</h5>
-                {{ user_form.as_p }}
-            </div>
-
-            <!-- Yazar Profili -->
-            <div class="col-md-6">
-                <h5>Yazar Profili</h5>
-
-                <!-- Profile Image -->
-                <div class="mb-3">
-                    {{ author_form.profile_image.label_tag }}
-                    {{ author_form.profile_image }}
-
-                    {% if author.profile_image %}
-                    <div class="mt-2">
-                        <img src="{{ author.profile_image.url }}" alt="Profil Fotoğrafı" class="img-thumbnail" style="max-width: 150px;">
+<div class="container py-4">
+    <div class="row">
+        <!-- Sol Kolon - Profil Bilgileri -->
+        <div class="col-lg-4 mb-4">
+            <div class="card shadow-sm border-0">
+                <div class="card-body p-4">
+                    <div class="text-center mb-4">
+                        <div class="position-relative d-inline-block">
+                            {% if author.profile_image %}
+                                <img src="{{ author.profile_image.url }}" alt="{{ user.get_full_name|default:user.username }}" 
+                                     class="rounded-circle img-thumbnail" style="width: 150px; height: 150px; object-fit: cover;">
+                            {% else %}
+                                <div class="rounded-circle bg-primary bg-opacity-10 d-flex align-items-center justify-content-center" 
+                                     style="width: 150px; height: 150px;">
+                                    <i class="bi bi-person-fill text-primary" style="font-size: 4rem;"></i>
+                                </div>
+                            {% endif %}
+                        </div>
+                        <h4 class="mt-3 mb-1">{{ user.get_full_name|default:user.username }}</h4>
+                        <p class="text-muted mb-3">@{{ user.username }}</p>
+                        <a href="{% url 'account:profile_edit' %}" class="btn btn-primary rounded-pill">
+                            <i class="bi bi-pencil-square me-2"></i>Profili Düzenle
+                        </a>
                     </div>
-                    {% endif %}
-                </div>
 
-                <!-- Bio -->
-                <div class="mb-3">
-                    {{ author_form.bio.label_tag }}
-                    {{ author_form.bio }}
-                </div>
-
-                <!-- Resume -->
-                <div class="mb-3">
-                    {{ author_form.resume.label_tag }}
-                    {{ author_form.resume }}
+                    <div class="mb-4">
+                        <h5 class="d-flex align-items-center mb-3">
+                            <i class="bi bi-person-lines-fill me-2 text-primary"></i>
+                            Hakkımda
+                        </h5>
+                        <p class="text-muted mb-0">
+                            {% if author.bio %}
+                                {{ author.bio|linebreaks }}
+                            {% else %}
+                                Henüz bir biyografi eklenmemiş.
+                            {% endif %}
+                        </p>
+                    </div>
 
                     {% if author.resume %}
-                    <div class="mt-2">
-                        <strong>Yüklenen CV:</strong>
-                        <a href="{{ author.resume.url }}" target="_blank" class="btn btn-sm btn-outline-secondary">
-                            Görüntüle / İndir
+                    <div class="mb-4">
+                        <h5 class="d-flex align-items-center mb-3">
+                            <i class="bi bi-file-earmark-text me-2 text-primary"></i>
+                            Özgeçmiş
+                        </h5>
+                        <a href="{{ author.resume.url }}" target="_blank" class="btn btn-outline-primary w-100">
+                            <i class="bi bi-download me-2"></i>Özgeçmişi İndir
                         </a>
                     </div>
                     {% endif %}
@@ -61,11 +62,100 @@ Profilim
             </div>
         </div>
 
-        <button class="btn btn-primary mt-2" type="submit">Güncelle</button>
-        <a href="{% url 'change_password' %}" class="btn btn-warning mt-2">Şifre Değiştir</a>
-    </form>
+        <!-- Sağ Kolon - Makale İstatistikleri -->
+        <div class="col-lg-8">
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-body p-4">
+                    <h5 class="d-flex align-items-center mb-4">
+                        <i class="bi bi-graph-up me-2 text-primary"></i>
+                        Makale İstatistikleri
+                    </h5>
+                    <div class="row g-4">
+                        <div class="col-sm-6 col-md-3">
+                            <div class="card bg-primary bg-opacity-10 border-0">
+                                <div class="card-body text-center">
+                                    <h3 class="mb-0 text-primary">{{ total_articles }}</h3>
+                                    <p class="text-muted mb-0">Toplam Makale</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-6 col-md-3">
+                            <div class="card bg-success bg-opacity-10 border-0">
+                                <div class="card-body text-center">
+                                    <h3 class="mb-0 text-success">{{ published_articles }}</h3>
+                                    <p class="text-muted mb-0">Yayında</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-6 col-md-3">
+                            <div class="card bg-warning bg-opacity-10 border-0">
+                                <div class="card-body text-center">
+                                    <h3 class="mb-0 text-warning">{{ pending_articles }}</h3>
+                                    <p class="text-muted mb-0">Onay Bekleyen</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-    <hr>
-
+            <!-- Son Makaleler -->
+            <div class="card shadow-sm border-0">
+                <div class="card-body p-4">
+                    <h5 class="d-flex align-items-center mb-4">
+                        <i class="bi bi-clock-history me-2 text-primary"></i>
+                        Son Makaleler
+                    </h5>
+                    {% if recent_articles %}
+                        <div class="list-group list-group-flush">
+                            {% for article in recent_articles %}
+                            <a href="{% url 'article_details' article.slug %}" class="list-group-item list-group-item-action border-0 px-0">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h6 class="mb-1">{{ article.title }}</h6>
+                                        <small class="text-muted">
+                                            {{ article.created_at|date:"d M Y" }} • 
+                                            {% if article.isActive %}
+                                                <span class="text-success">Yayında</span>
+                                            {% else %}
+                                                <span class="text-warning">Onay Bekliyor</span>
+                                            {% endif %}
+                                        </small>
+                                    </div>
+                                    <div class="text-muted">
+                                        <i class="bi bi-eye me-1"></i>{{ article.views }}
+                                    </div>
+                                </div>
+                            </a>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center text-muted py-4">
+                            <i class="bi bi-inbox fs-1 d-block mb-3"></i>
+                            Henüz makale bulunmuyor.
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
+
+<style>
+.card {
+    border-radius: 1rem;
+}
+
+.list-group-item {
+    padding: 1rem 0;
+}
+
+.list-group-item:not(:last-child) {
+    border-bottom: 1px solid rgba(0,0,0,.05);
+}
+
+.list-group-item:hover {
+    background-color: rgba(13, 110, 253, 0.03);
+}
+</style>
 {% endblock %}

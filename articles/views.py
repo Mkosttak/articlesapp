@@ -5,6 +5,8 @@ from .models import Article, Category
 from django.core.paginator import Paginator
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.db.models import Q
+from django.views.decorators.csrf import csrf_protect
+from django.contrib import messages
 
 # Giriş sayfası (ana sayfa)
 def index(request):
@@ -55,7 +57,7 @@ def article_create(request):
             article.isActive = False
             article.save()
             form.save_m2m()
-            return redirect('my_articles')
+            return redirect('account:my_articles')
         else:
             return render(request, 'articles/article-create.html', {
                 "form": form,
@@ -76,9 +78,9 @@ def article_list(request):
             Q(description__icontains=query) |
             Q(author__first_name__icontains=query) |
             Q(author__last_name__icontains=query)
-        ).order_by("-updated_at")
+        ).select_related('author').order_by("-updated_at")
     else:
-        articles = Article.objects.all().order_by("-updated_at")
+        articles = Article.objects.all().select_related('author').order_by("-updated_at")
 
     return render(request, 'articles/article-list.html', {
         'articles': articles,
@@ -87,7 +89,10 @@ def article_list(request):
 
 @login_required
 def article_edit(request, id):
-    article = get_object_or_404(Article, pk=id)
+    try:
+        article = get_object_or_404(Article, pk=id)
+    except ValueError:
+        article = get_object_or_404(Article, slug=id)
 
     if request.user.is_superuser:
         # Admin düzenliyor
@@ -103,20 +108,25 @@ def article_edit(request, id):
     if request.method == 'POST':
         form = form_class(request.POST, request.FILES, instance=article)
         if form.is_valid():
-            form.save()
-            return redirect('my_articles' if not request.user.is_superuser else 'article_list')
+            updated_article = form.save(commit=False)
+            if not request.user.is_superuser:
+                updated_article.isActive = False
+                updated_article.isHome = False
+            updated_article.save()
+            form.save_m2m()
+            return redirect('account:my_articles' if not request.user.is_superuser else 'article_list')
     else:
         form = form_class(instance=article)
 
     return render(request, template, {"form": form})
-from django.contrib.auth.decorators import login_required
-from django.views.decorators.csrf import csrf_protect
-from django.contrib import messages
 
 @login_required
 @csrf_protect
 def article_delete(request, id):
-    article = get_object_or_404(Article, pk=id)
+    try:
+        article = get_object_or_404(Article, pk=id)
+    except ValueError:
+        article = get_object_or_404(Article, slug=id)
 
     if not request.user.is_superuser and article.author != request.user:
         return redirect('index')
@@ -124,7 +134,10 @@ def article_delete(request, id):
     if request.method == "POST":
         article.delete()
         messages.success(request, "Makale başarıyla silindi.")
-        return redirect('article_list')
+        if request.user.is_superuser:
+            return redirect('article_list')
+        else:
+            return redirect('account:my_articles')
 
     return render(request, 'articles/article-delete.html', {'article': article})
 
@@ -163,3 +176,8 @@ def getArticlesByCategory(request, slug):
         'page_obj': page_obj,
         'seciliKategori': slug,
     })
+
+@login_required
+def profile_edit(request):
+    # ProfileEditForm ve Profile importlarını kaldırıyorum, çünkü artık bu form ve model burada kullanılmıyor.
+    pass
