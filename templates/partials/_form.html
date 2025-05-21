@@ -1,7 +1,7 @@
 {% for error in form.non_field_errors %}
 <div class="alert alert-danger alert-dismissible fade show rounded-3 shadow-sm border-0 mb-4" role="alert">
     <div class="d-flex align-items-center">
-        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+        <i class="bi bi-exclamation-triangle-fill me-2 fs-5"></i>
         <div>{{ error }}</div>
     </div>
     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
@@ -13,7 +13,7 @@
     {% if field.errors %}
     <div class="alert alert-danger alert-dismissible fade show rounded-3 mb-3 border-0 shadow-sm" role="alert">
         <div class="d-flex align-items-center">
-            <i class="bi bi-exclamation-circle-fill me-2"></i>
+            <i class="bi bi-exclamation-circle-fill me-2 fs-5"></i>
             <div>{{ field.errors }}</div>
         </div>
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
@@ -43,61 +43,115 @@
     </div>
     {% elif field.field.widget.input_type == 'file' %}
     <div class="input-group">
-        <span class="input-group-text bg-light">
+        <span class="input-group-text bg-light border-end-0">
             <i class="bi bi-upload"></i>
         </span>
         {{ field }}
     </div>
-    <div class="form-text text-muted small">{{ field.help_text|safe }}</div>
+    <div class="form-text text-muted small mt-1">{{ field.help_text|safe }}</div>
     {% elif field.name == 'content' or field.name == 'body' or field.name == 'description' or 'text' in field.field.widget.attrs.class %}
     {{ field }}
-    <div class="form-text text-muted small">{{ field.help_text|safe }}</div>
+    <div class="form-text text-muted small mt-1">{{ field.help_text|safe }}</div>
     {% else %}
     <div class="input-group">
         {% if 'email' in field.name %}
-        <span class="input-group-text bg-light">
+        <span class="input-group-text bg-light border-end-0">
             <i class="bi bi-envelope"></i>
         </span>
         {% elif 'password' in field.name %}
-        <span class="input-group-text bg-light">
+        <span class="input-group-text bg-light border-end-0">
             <i class="bi bi-lock"></i>
         </span>
         {% elif 'user' in field.name or 'name' in field.name %}
-        <span class="input-group-text bg-light">
+        <span class="input-group-text bg-light border-end-0">
             <i class="bi bi-person"></i>
         </span>
         {% elif 'phone' in field.name %}
-        <span class="input-group-text bg-light">
+        <span class="input-group-text bg-light border-end-0">
             <i class="bi bi-telephone"></i>
         </span>
         {% elif 'date' in field.name %}
-        <span class="input-group-text bg-light">
+        <span class="input-group-text bg-light border-end-0">
             <i class="bi bi-calendar"></i>
         </span>
         {% elif 'time' in field.name %}
-        <span class="input-group-text bg-light">
+        <span class="input-group-text bg-light border-end-0">
             <i class="bi bi-clock"></i>
         </span>
         {% elif 'url' in field.name or 'link' in field.name %}
-        <span class="input-group-text bg-light">
+        <span class="input-group-text bg-light border-end-0">
             <i class="bi bi-link"></i>
         </span>
         {% else %}
-        <span class="input-group-text bg-light">
+        <span class="input-group-text bg-light border-end-0">
             <i class="bi bi-pencil"></i>
         </span>
         {% endif %}
         {{ field }}
     </div>
-    <div class="form-text text-muted small">{{ field.help_text|safe }}</div>
+    <div class="form-text text-muted small mt-1">{{ field.help_text|safe }}</div>
     {% endif %}
 </div>
 {% endfor %}
 
 {% if form.fields %}
 <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
-    <button type="submit" class="btn btn-primary px-4 rounded-pill shadow-sm">
+    <button type="submit" class="btn btn-primary px-4 py-2 rounded-pill shadow-sm">
         <i class="bi bi-check-circle me-1"></i> Gönder
     </button>
 </div>
 {% endif %}
+
+<style>
+.form-control, .form-select {
+    border-radius: 0.375rem;
+    padding: 0.6rem 1rem;
+    font-size: 0.95rem;
+    border-color: #dee2e6;
+    transition: all 0.2s ease-in-out;
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: #86b7fe;
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.15);
+}
+
+.input-group-text {
+    border-radius: 0.375rem 0 0 0.375rem;
+    padding: 0.6rem 1rem;
+}
+
+.form-control:not(:first-child) {
+    border-radius: 0 0.375rem 0.375rem 0;
+}
+
+.form-check-input:checked {
+    background-color: #0d6efd;
+    border-color: #0d6efd;
+}
+
+.form-check-input:focus {
+    border-color: #86b7fe;
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.15);
+}
+
+.form-label {
+    margin-bottom: 0.5rem;
+    color: #495057;
+}
+
+.form-text {
+    font-size: 0.875rem;
+}
+
+@media (max-width: 768px) {
+    .form-control, .form-select, .input-group-text {
+        padding: 0.5rem 0.75rem;
+        font-size: 0.9rem;
+    }
+    
+    .btn {
+        width: 100%;
+    }
+}
+</style>

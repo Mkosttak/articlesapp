@@ -5,68 +5,129 @@
 <link rel="stylesheet" href="{% static 'articles/css/style.css' %}">
 {% endblock %}
 
-{% block page_title %}
-Makaleler
-{% endblock %}
+{% block page_title %}Makaleler{% endblock %}
 
 {% block content %}
-<div class="container mt-4">
-    <div class="row">
-        <div class="col-lg-3 mb-4">
-            {% include 'articles/partials/_categories.html' %}
-        </div>
-        <!-- 🔍 Arama Kutusu -->
-        <form method="GET" class="mb-4">
-            <div class="input-group">
-                <input type="text" name="q" class="form-control" placeholder="Makale ara..." value="{{ request.GET.q }}">
-                <button class="btn btn-primary" type="submit">Ara</button>
+<div class="container py-4">
+    <div class="row g-4">
+        <!-- Sol Sidebar -->
+        <div class="col-lg-3">
+            <div class="card border-0 shadow-sm rounded-4">
+                <div class="card-header bg-gradient bg-primary text-white border-0 py-3">
+                    <div class="d-flex align-items-center">
+                        <i class="bi bi-grid-3x3-gap fs-4 me-2"></i>
+                        <h5 class="card-title mb-0">Kategoriler</h5>
+                    </div>
+                </div>
+                <div class="card-body p-0">
+                    {% include 'articles/partials/_categories.html' %}
+                </div>
             </div>
-        </form>
+        </div>
 
-{% if query %}
-    <div class="alert alert-info">
-        "{{ query }}" için <strong>{{ articles|length }}</strong> sonuç bulundu.
-    </div>
-{% endif %}
-
-
+        <!-- Sağ İçerik -->
         <div class="col-lg-9">
+            <!-- 🔍 Arama Kutusu -->
+            <form method="GET" class="mb-4">
+                <div class="input-group shadow-sm">
+                    <span class="input-group-text bg-white border-end-0">
+                        <i class="bi bi-search text-muted"></i>
+                    </span>
+                    <input type="text" name="q" class="form-control border-start-0" 
+                           placeholder="Makale ara..." value="{{ request.GET.q }}">
+                    <button class="btn btn-primary px-4" type="submit">Ara</button>
+                </div>
+            </form>
+
+            {% if query %}
+            <div class="alert alert-info d-flex align-items-center shadow-sm mb-4">
+                <i class="bi bi-info-circle-fill me-2 fs-5"></i>
+                <div>"{{ query }}" için <strong>{{ articles|length }}</strong> sonuç bulundu.</div>
+            </div>
+            {% endif %}
+
             {% if articles|length == 0 %}
-                <div class="alert alert-warning">Henüz hiç makale yayınlanmamış.</div>
+            <div class="alert alert-warning d-flex align-items-center shadow-sm">
+                <i class="bi bi-exclamation-triangle-fill me-2 fs-5"></i>
+                <div>Henüz hiç makale yayınlanmamış.</div>
+            </div>
             {% endif %}
 
             <div class="row row-cols-1 row-cols-md-2 g-4">
                 {% for article in articles %}
-                    <div class="col">
-                        <div class="card h-100 shadow-sm">
-                            <div class="card-body">
-                                <h5 class="card-title">
-                                    <a href="{% url 'article_details' article.slug %}" class="text-decoration-none text-dark">
-                                        {{ article.title }}
-                                    </a>
-                                </h5>
-                                <p class="card-text">{{ article.description|truncatewords:25 }}</p>
+                <div class="col">
+                    <div class="card h-100 border-0 shadow-sm rounded-4">
+                        <div class="card-body p-4">
+                            <div class="d-flex align-items-center mb-3">
+                                <div class="flex-shrink-0 me-3">
+                                    <div class="bg-primary bg-opacity-10 rounded-3 p-3">
+                                        <i class="bi bi-file-text text-primary fs-4"></i>
+                                    </div>
+                                </div>
+                                <div class="flex-grow-1">
+                                    <h5 class="card-title mb-0">
+                                        <a href="{% url 'article_details' article.slug %}" class="text-decoration-none text-dark">
+                                            {{ article.title }}
+                                        </a>
+                                    </h5>
+                                </div>
                             </div>
-                            <div class="card-footer bg-white border-top-0">
-                                <small class="text-muted d-block mb-1">
-                                    Yayın tarihi: {{ article.created_at|date:"d M Y" }}
-                                </small>
-                                <small class="text-muted">
-                                    Yazar:
-                                    {% if article.author %}
-                                        {{ article.author.get_full_name|default:article.author.username }}
-                                    {% else %}
-                                        Bilinmiyor
-                                    {% endif %}
-                                </small>
+                            <p class="card-text text-muted">{{ article.description|truncatewords:25 }}</p>
+                        </div>
+                        <div class="card-footer bg-white border-top-0 p-4">
+                            <div class="d-flex align-items-center justify-content-between">
+                                <div class="d-flex align-items-center text-muted">
+                                    <i class="bi bi-calendar3 me-2"></i>
+                                    <small>{{ article.created_at|date:"d M Y" }}</small>
+                                </div>
+                                <div class="d-flex align-items-center text-muted">
+                                    <i class="bi bi-person me-2"></i>
+                                    <small>
+                                        {% if article.author %}
+                                            {{ article.author.get_full_name|default:article.author.username }}
+                                        {% else %}
+                                            Bilinmiyor
+                                        {% endif %}
+                                    </small>
+                                </div>
                             </div>
                         </div>
                     </div>
+                </div>
                 {% endfor %}
             </div>
         </div>
     </div>
 </div>
+
+<style>
+.card-header {
+    background: linear-gradient(45deg, #0d6efd, #0a58ca);
+}
+
+.card {
+    transition: transform 0.2s ease-in-out;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+}
+
+@media (max-width: 768px) {
+    .card-body {
+        padding: 1.5rem !important;
+    }
+    
+    .card-footer {
+        padding: 1.5rem !important;
+    }
+    
+    .d-flex.justify-content-between {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+}
+</style>
 {% endblock %}
 
 {% block js_files %}
